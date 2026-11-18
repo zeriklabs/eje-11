@@ -1,0 +1,193 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.collapsed]="!sidebarAbierto()">
+    <div class="sidebar-brand">
+      <i class="bi bi-mortarboard-fill brand-icon"></i>
+      <span class="brand-text">UPIIZ-IPN</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" (click)="$event.preventDefault()">
+        <i class="bi bi-people-fill"></i>
+        <span>Alumnos</span>
+      </a>
+      <a href="#" class="nav-item" (click)="$event.preventDefault()">
+        <i class="bi bi-book-half"></i>
+        <span>Materias</span>
+      </a>
+      <a href="#" class="nav-item" (click)="$event.preventDefault()">
+        <i class="bi bi-bar-chart-fill"></i>
+        <span>Reportes</span>
+      </a>
+      <a href="#" class="nav-item" (click)="$event.preventDefault()">
+        <i class="bi bi-gear-fill"></i>
+        <span>Configuración</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="ipn-crest">
+        <svg viewBox="0 0 100 115" class="crest-svg" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Stylized crest representation -->
+          <path d="M50 5 L85 25 V65 C85 88 50 110 50 110 C50 110 15 88 15 65 V25 Z" stroke="rgba(255,255,255,0.4)" stroke-width="3" fill="rgba(255,255,255,0.05)"/>
+          <path d="M50 20 L75 35 V62 C75 78 50 95 50 95 C50 95 25 78 25 62 V35 Z" stroke="rgba(255,255,255,0.3)" stroke-width="2"/>
+          <text x="50" y="55" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="14" font-weight="bold">IPN</text>
+          <text x="50" y="75" text-anchor="middle" fill="rgba(255,255,255,0.6)" font-size="10">UPIIZ</text>
+        </svg>
+        <span class="crest-label">UPIIZ</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Header -->
+    <header class="topbar">
+      <button class="menu-toggle-btn" (click)="toggleSidebar()" title="Toggle Menú">
+        <i class="bi bi-list"></i>
+      </button>
+
+      <div class="user-profile">
+        <i class="bi bi-person-circle user-avatar"></i>
+        <span class="user-role">Profesor</span>
+        <i class="bi bi-chevron-down user-arrow"></i>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="page-content">
+      <div class="card content-card">
+        <!-- Title and Toggle Button -->
+        <div class="page-header">
+          <div class="title-with-icon">
+            <i class="bi bi-people-fill title-icon"></i>
+            <h1 class="page-title">Listado de alumnos</h1>
+          </div>
+          <button class="btn btn-toggle" (click)="toggleTabla()">
+            <i class="bi" [class.bi-plus-lg]="!mostrarTabla()" [class.bi-dash-lg]="mostrarTabla()"></i>
+            <span>{{ mostrarTabla() ? 'Ocultar Tabla' : 'Mostrar Tabla' }}</span>
+          </button>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-container">
+          <!-- Name Filter -->
+          <div class="form-group">
+            <label for="filtroNombre" class="form-label">Ingrese Nombre</label>
+            <div class="search-input-wrapper">
+              <input
+                id="filtroNombre"
+                type="text"
+                class="form-control"
+                placeholder="Alumno a buscar"
+                [ngModel]="filtroNombre()"
+                (ngModelChange)="filtroNombre.set($event)"
+              />
+              <i class="bi bi-search search-icon"></i>
+            </div>
+          </div>
+
+          <!-- Career Filter -->
+          <div class="form-group">
+            <label for="filtroCarrera" class="form-label">Ingrese Carrera</label>
+            <div class="select-wrapper">
+              <select
+                id="filtroCarrera"
+                class="form-control form-select"
+                [ngModel]="filtroCarrera()"
+                (ngModelChange)="filtroCarrera.set($event)"
+              >
+                @for (carrera of carreras; track carrera) {
+                  <option [value]="carrera">{{ carrera }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Section -->
+        @if (mostrarTabla()) {
+          <div class="table-responsive">
+            <table class="students-table">
+              <thead>
+                <tr>
+                  <th class="col-id">#</th>
+                  <th class="col-matricula">Matrícula</th>
+                  <th class="col-nombre">Nombre</th>
+                  <th class="col-carrera">Carrera</th>
+                  <th class="col-semestre">Semestre</th>
+                  <th class="col-status">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (alumno of alumnosFiltrados(); track alumno.id; let idx = $index) {
+                  <tr>
+                    <td class="col-id font-bold">{{ alumno.id }}</td>
+                    <td class="col-matricula">{{ alumno.matricula }}</td>
+                    <td class="col-nombre">{{ alumno.nombre }}</td>
+                    <td class="col-carrera">{{ alumno.carrera }}</td>
+                    <td class="col-semestre text-center">{{ alumno.semestre }}</td>
+                    <td class="col-status text-center">
+                      <span [ngClass]="getStatusClass(alumno.status)">
+                        {{ alumno.status }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="6" class="no-data">
+                      No se encontraron alumnos que coincidan con la búsqueda.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+
+        <!-- Statistics Section -->
+        <section class="statistics-section">
+          <div class="statistics-header">
+            <i class="bi bi-bar-chart-fill stats-icon"></i>
+            <h2 class="statistics-title">Estadísticas</h2>
+          </div>
+
+          <div class="stats-grid">
+            <!-- Total Alumnos -->
+            <div class="stat-card stat-blue">
+              <div class="stat-icon-bubble bubble-blue">
+                <i class="bi bi-people-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Total alumnos:</span>
+                <span class="stat-number">{{ totalAlumnos() }}</span>
+              </div>
+            </div>
+
+            <!-- Total Activos -->
+            <div class="stat-card stat-green">
+              <div class="stat-icon-bubble bubble-green">
+                <i class="bi bi-check-lg"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Total activos:</span>
+                <span class="stat-number">{{ totalActivos() }}</span>
+              </div>
+            </div>
+
+            <!-- Total Egresados -->
+            <div class="stat-card stat-purple">
+              <div class="stat-icon-bubble bubble-purple">
+                <i class="bi bi-mortarboard-fill"></i>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Total egresados:</span>
+                <span class="stat-number">{{ totalEgresados() }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
